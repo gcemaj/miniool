@@ -1,0 +1,4 @@
+var fib = proc(n, result): if n <=2 then result = 1 else result = fib(n-1) + fib(n-2)
+
+debug(fib(5))
+debug(fib(20))

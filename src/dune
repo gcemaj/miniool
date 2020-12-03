@@ -1,0 +1,13 @@
+(env
+    (dev
+        (flags (:standard -warn-error -A))
+    )
+)
+(menhir
+    (infer false)
+    (modules parser)
+)
+(ocamllex lexer)
+(executable 
+    (name miniool)
+)
