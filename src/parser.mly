@@ -42,7 +42,7 @@
 
 %% /* rules */
 prog :
-    ast = cmds EOL { eval_ast ast }
+    ast = cmds EOL { if !Flags.ast then print_ast ast else eval_ast ast}
 cmds :
 | c = cmd SEMICOLON cs = cmds                                                                   { c :: cs }
 | c = cmd                                                                                       { [c] }

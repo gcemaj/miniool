@@ -1,0 +1,4 @@
+var fib = proc(n,r): {var x = 0; var y = 1; r = proc(a, r2): { r2 = x + y ; x = y; y = r2  }};
+var fibber = fib(1);
+var i = 20;
+while i > 0 do {debug(fibber(1)); i = i -1};

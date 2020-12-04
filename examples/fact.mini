@@ -1,0 +1,3 @@
+var fact = proc(n,r): if n <= 1 then r=1 else r = n*fact(n-1);
+
+debug(fact(5));

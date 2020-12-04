@@ -1,6 +1,7 @@
 {
   open Parser;;
   exception SyntaxError;;
+  exception EoF;;
 }
 
 let blank = [' ' '\r' '\t']
@@ -47,5 +48,5 @@ rule miniool = parse
   | '*'             {TIMES}
   | '/'             {DIV}
   | '%'             {MOD}
+  | eof             {SKIP}
   | _               {raise SyntaxError}
-  | eof             {raise SyntaxError}

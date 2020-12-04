@@ -88,25 +88,25 @@ and eval_bool_expr bool_expr stack heap = match bool_expr with
       match eval_exp with
         | IntValue e1 -> if e1 == 0 then false else true
         | NullValue -> false
-        | ObjValue _ -> failwith "Object has no concept of truthyness"
-        | Closure _ -> failwith "Closure has no concept of truthyness"
-        | Error err -> failwith err
+        | ObjValue _ -> raise (EvaluationError "Object has no concept of truthyness")
+        | Closure _ -> raise (EvaluationError "Closure has no concept of truthyness")
+        | Error err -> raise (EvaluationError err)
     )
   | BinaryIntegerComparatorExpr (op, lhs, rhs) -> (
       let eval_lhs = (eval_expr lhs stack heap) in
       let eval_rhs = (eval_expr rhs stack heap) in
       match eval_lhs, eval_rhs with
         | IntValue e1, IntValue e2 -> (op e1 e2)
-        | Error err1 , Error err2 -> failwith (sprintf "%s and %s" err1 err2)
-        | _, Error err | Error err, _ -> failwith err
-        | _, _ -> failwith "Cannot perform operation on values that are not of type Interger "
+        | Error err1 , Error err2 -> raise (EvaluationError (sprintf "%s and %s" err1 err2))
+        | _, Error err | Error err, _ -> raise (EvaluationError err)
+        | _, _ -> raise (EvaluationError "Cannot perform operation on values that are not of type Interger ")
     )
   | UnaryIntegerComparatorExpr (op, lhs) -> (
       let eval_lhs = (eval_expr lhs stack heap) in
       match eval_lhs with
         | IntValue e1 -> (op e1)
-        | Error err -> failwith err
-        | _ -> failwith "Cannot perform operation on values that are not of type Interger"
+        | Error err -> raise (EvaluationError err)
+        | _ -> raise (EvaluationError "Cannot perform operation on values that are not of type Interger")
     )
   | BinaryBoolComparatorExpr (op, lhs, rhs) -> (op (eval_bool_expr lhs stack heap) (eval_bool_expr rhs stack heap))
   | UnaryBoolComparatorExpr (op, lhs )-> (op (eval_bool_expr lhs stack heap))
@@ -118,7 +118,7 @@ and eval_cmd cmd stack heap =
       set_value_for_ident !id e1 stack heap;
       match e1 with
         | Closure clo -> (push_value_for_ident !id e1 (ref (!clo.stack)) heap);[]
-        | Error err -> failwith err
+        | Error err -> raise (EvaluationError err)
         | _ -> []
     )
   | FieldAssignment (expr1, field, expr2) -> (
@@ -126,14 +126,14 @@ and eval_cmd cmd stack heap =
       let e2 = (eval_expr expr2 stack heap) in
       match e1 with
         | ObjValue (loc, _) -> Hashtbl.add !heap (loc, !field) e2;[]
-        | _ -> failwith "Cannot assign field to variable that has not been malloc'ed"
+        | _ -> raise (EvaluationError "Cannot assign field to variable that has not been malloc'ed")
     )
   | Malloc id -> (
       let loc = Hashtbl.find !stack !id in
       let heap_val = Hashtbl.find !heap (loc, "value") in
       match heap_val with
         | NullValue -> Hashtbl.add !heap (loc, "value") (ObjValue (loc, NullValue));[]
-        | _ -> failwith "Can only apply malloc to variable with NullValue"
+        | _ -> raise (EvaluationError "Can only apply malloc to variable with NullValue")
     )
   | CmdSequence (cmds) -> (
       match cmds with
@@ -160,7 +160,7 @@ and eval_cmd cmd stack heap =
   | Expression (expr) -> (
       let e = (eval_expr expr stack heap) in
       match e with
-        | Error err -> failwith err
+        | Error err -> raise (EvaluationError err)
         | _ -> []
     )
   | Debug (expr) -> print_t_value (eval_expr expr stack heap); []
